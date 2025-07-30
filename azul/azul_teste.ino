@@ -49,14 +49,23 @@ void loop() {
   CHECK_STOP();
 
   CALCULA_ERRO();
-  const int mov = 70;
-  SET_MOTORS(mov * dirDisparo * -1, mov * dirDisparo * 1);
-  delay(120);
-  if (dirDisparo == 1) {
-    dirDisparo = -4;
-  } else {
-    dirDisparo = 1;
-  }
+  const int vel_giro = 170;
+  const int delay_giro = 150;
+  const int delay_final = 400;
+  // Etapa 1: gira levemente para esquerda (-35°)
+  SET_MOTORS(vel_giro, -vel_giro);
+  delay(delay_giro);
+
+  // Etapa 2: gira mais para direita (+35°)
+  SET_MOTORS(-vel_giro * 1.5, vel_giro * 1.5);
+  delay(delay_giro * 1);
+
+  // Etapa 3: volta para o centro (zero)
+  SET_MOTORS(vel_giro, -vel_giro);
+  delay(delay_giro);
+  SET_MOTORS(0, -0);
+
+  delay(delay_final);
   // if (abs(ERRO) > abs(ERRO_ANTIGO)) {
   //   if (ERRO > 0) {
   //     SET_MOTORS(-50, -50);
