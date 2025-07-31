@@ -1,4 +1,4 @@
-// azul com reflexo de barata
+// azul minerva
 #include <IRremote.hpp>
 #include <Wire.h>
 #include <VL53L0X.h>
