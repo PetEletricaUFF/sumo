@@ -44,7 +44,7 @@
     SET_MOTORS(0,0);
   }
 
-void loop {
+void loop(void) {
   
 }
 
