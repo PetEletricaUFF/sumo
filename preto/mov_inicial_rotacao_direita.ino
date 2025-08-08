@@ -37,10 +37,12 @@
   }
 
   void MOVIMENTO_INICIAL() {
-    const float MULTIPLIER = 2;
+    SET_MOTORS(0,255);
+    delay(200);
+    const float MULTIPLIER = 1.7;
     const int SPEED = 255 / MULTIPLIER;
     SET_MOTORS(SPEED * MULTIPLIER,SPEED);
-    delay(480);
+    delay(700);
     SET_MOTORS(0,0);
   }
 
