@@ -21,6 +21,7 @@ uint16_t distancia_right;
 #define DIR_STDBY PC2    //A2
 
 #define START_CODE 0x81
+#define STOP_CODE  0x82   // botão 3 do controle
 #define IR_RECEIVE_PIN 11
 
 #define LIMIAR 1200
@@ -32,19 +33,23 @@ void setup() {
   VL53L0X_CONFIG();
   IrReceiver.begin(IR_RECEIVE_PIN);
   MOTORS_CONFIG();
-  // CHECK_START(); // Habilite se quiser esperar comando IR
+  CHECK_START(); // Habilite se quiser esperar comando IR
 
   MOVIMENTO_INICIAL(); // executa movimento L + ataque
 }
 
 void loop() {
+  CHECK_STOP();
 }
 
 void MOVIMENTO_INICIAL() {
+  SET_MOTORS(0,255); // Gira pra esquerda 90°
+  delay(180);
+  SET_MOTORS(0,0);
+  //return;
   const int vel = 200;
-  // Etapa 2: Curva (para direita, por exemplo)
-  SET_MOTORS(vel, vel / 2.2);
-  delay(800);
+  SET_MOTORS(vel, vel / 2.2); // faz a curva
+  delay(500);
 
   // Etapa 3: Ataque reto
   SET_MOTORS(255, 255);
@@ -53,7 +58,6 @@ void MOVIMENTO_INICIAL() {
   // Passa pra estratégia
 }
 
-// Cálculo de erro (não usado nesta estratégia, mas mantido)
 void CALCULA_ERRO(void) {
   error_antg = error;
 
@@ -151,6 +155,33 @@ void CHECK_START(void) {
   while (IrReceiver.decodedIRData.decodedRawData != START_CODE) {
     if (IrReceiver.decode()) {
       IrReceiver.resume();
+    }
+  }
+}
+
+void CHECK_STOP(void) {
+  if (IrReceiver.decode()) {
+    unsigned long code = IrReceiver.decodedIRData.decodedRawData;
+    IrReceiver.resume();
+
+    if (code == STOP_CODE) {
+      // Para motores
+      SET_MOTORS(0, 0);
+      Serial.println("STOP recebido. Aguardando START...");
+
+      // Espera até receber START_CODE novamente
+      while (true) {
+        if (IrReceiver.decode()) {
+          unsigned long newCode = IrReceiver.decodedIRData.decodedRawData;
+          IrReceiver.resume();
+
+          if (newCode == START_CODE) {
+            Serial.println("START recebido. Continuando...");
+            MOVIMENTO_INICIAL();
+            break;
+          }
+        }
+      }
     }
   }
 }
